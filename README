@@ -1,5 +1,3 @@
-# README
-
 ## Question 1: Understanding Docker First Run
 
 Run the following Docker command to start a Python container with an interactive Bash shell:
