@@ -18,16 +18,20 @@ pip --version
 
 ```sql
 SELECT
-    COUNT(*)
+    COUNT(*) AS total_trips,
+    CASE
+        WHEN trip_distance <= 1.0 THEN '0-1'
+        WHEN trip_distance > 1.0 AND trip_distance <= 3.0 THEN '1-3'
+        WHEN trip_distance > 3.0 AND trip_distance <= 7.0 THEN '3-7'
+        WHEN trip_distance > 7.0 AND trip_distance <= 10.0 THEN '7-10'
+        ELSE '>10'
+    END AS distance_range
 FROM public.tripdata
 WHERE
     lpep_pickup_datetime::DATE BETWEEN '2019-10-01' AND '2019-10-31'
     AND lpep_dropoff_datetime::DATE BETWEEN '2019-10-01' AND '2019-10-31'
-    AND trip_distance <= 1.0
--- AND trip_distance > 1.0 AND trip_distance <= 3.0
--- AND trip_distance > 3.0 AND trip_distance <= 7.0
--- AND trip_distance > 7.0 AND trip_distance <= 10.0
--- AND trip_distance > 10.0
+GROUP BY distance_range
+ORDER BY distance_range;
 ```
 
 Uncomment the relevant distance range as needed.
@@ -37,16 +41,11 @@ Uncomment the relevant distance range as needed.
 ## Question 4: Longest Trip for Each Day
 
 ```sql
-WITH grouped_data AS (
-    SELECT
-        lpep_pickup_datetime::DATE, MAX(trip_distance) AS max_trip_distance
-    FROM public.tripdata
-    WHERE lpep_pickup_datetime::DATE IN ('2019-10-11', '2019-10-24', '2019-10-26', '2019-10-31')
-    GROUP BY lpep_pickup_datetime::DATE
-)
 SELECT lpep_pickup_datetime::DATE
-FROM grouped_data
-ORDER BY max_trip_distance DESC
+FROM public.green_taxi
+WHERE lpep_pickup_datetime::DATE IN ('2019-10-11', '2019-10-24', '2019-10-26', '2019-10-31')
+GROUP BY lpep_pickup_datetime::DATE
+ORDER BY MAX(trip_distance) DESC
 LIMIT 1;
 ```
 
